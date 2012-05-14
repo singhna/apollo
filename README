@@ -1,0 +1,12 @@
+Apollo is a collection of applications that allows application / system logs to be stored in Cassandra (http://cassandra.apache.org).
+
+We aim to provide the following;
+
+- Log collection and storage of logs into cassandra
+- Log viewer
+- Real-time analytics of logs
+
+This is a project started in Sky Software Engineering (http://www.sky.com).
+
+Hayato Shimizu
+
