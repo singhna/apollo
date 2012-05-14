@@ -1,0 +1,2 @@
+JAVA application to push log data from rsyslogd into Cassandra.
+
