@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jee="http://www.springframework.org/schema/jee"
+  xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+  default-lazy-init="true">
+  <import resource="messageFormatFactoryAppCtx.xml" />
+  	<!-- Property Configurer -->
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<property name="locations">
+		<list>
+			<bean class="org.springframework.core.io.ClassPathResource">
+				<constructor-arg value="messagehandler.properties" />
+			</bean>
+		</list>
+	</property>
+  </bean>
+  <bean id="messageHandler" class="com.bskyb.cg.environments.message.MessageHandler" scope="prototype">
+	<property name="queue">
+	   	<ref bean="queue"/>
+  	</property>
+  		<property name="cassandraConfigurationBuilder">
+	   	<ref bean="cassandraConfigurationBuilder"/>
+  	</property>
+  	
+  </bean>
+
+  <bean id="cassandraConfigurationBuilder" class="com.bskyb.cg.environments.cassandra.CassandraConfigurationBuilder">
+		<property name="rowCount" value="${cassandra.row.count}" />
+		<property name="hosts" value="${cassandra.url}" />
+		<property name="thriftSocketTimeout" value="${cassandra.socket.timeout}" />
+		<property name="exhaustPolicy" value="${cassandra.exhausted.policy}" />
+		<property name="maxActive" value="${cassandra.max.active.pool.size}" />
+		<property name="maxIdle" value="${cassandra.max.idle.pool.size}" />
+		<property name="maxWaitTimeWhenExhausted" value="${cassandra.max.wait.time.when.exhausted}" />
+		<property name="lifo" value="${cassandra.lifo}" />
+		<property name="clusterName" value="${cassandra.cluster.name}" />
+		<property name="keySpaceName" value="${cassandra.keyspace.name}" />
+		<property name="readConsistencyLevel" value="${cassandra.read.consistency.level}" />
+		<property name="writeConsistencyLevel" value="${cassandra.write.consistency.level}" />
+		<property name="autoDiscoverHosts" value="${cassandra.autodiscoverhosts}" />
+		<property name="retryDownedHosts" value="${cassandra.retryDownedHosts}" />
+		<property name="retryDownedHostsDelayInSeconds" value="${cassandra.retryDownedHostsDelayInSeconds}" />
+		
+  </bean>
+  
+  <bean id="queue" class="com.bskyb.cg.environments.queue.Queue">
+	<constructor-arg name="dirname" value="${queue.store}" />
+  </bean>
+</beans>

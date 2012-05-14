@@ -1,0 +1,1 @@
+[origin software="rsyslogd" swVersion="4.6.4" x-pid="1040" x-info="http://www.rsyslog.com"] rsyslogd was HUPed, type 'lightweight'.

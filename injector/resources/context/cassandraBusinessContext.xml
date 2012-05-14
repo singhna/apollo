@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+	default-lazy-init="true">
+
+	<bean id="cassandraConfiguration" class="com.bskyb.cg.environments.cassandra.CassandraConfiguration">
+		<constructor-arg index="0" ref="keyspace" />
+		<constructor-arg index="1" value="${cassandra.columnfamily.name}" />
+		<constructor-arg index="2" name="rowCount" value="${cassandra.row.count}" />
+		<constructor-arg index="3" name="timeToLiveInMinutes" value="${cassandra.offering.time.to.live.mins}" />
+		<constructor-arg index="4" name="timeToGoStaleInMinutes" value="${cassandra.offering.time.to.go.stale.mins}" />
+	</bean>
+
+	<bean id="cassandraHostConfigurator" class="me.prettyprint.cassandra.service.CassandraHostConfigurator">
+		<constructor-arg name="hosts" value="${cassandra.host}:${cassandra.port}" />
+		<property name="cassandraThriftSocketTimeout" value="${cassandra.socket.timeout}" /> <!-- The amount of time to wait on the Thrift socket for a response from the server -->
+		<property name="exhaustedPolicy" value="${cassandra.exhausted.policy}" />
+		<property name="maxActive" value="${cassandra.max.active.pool.size}" /> <!-- The maximum number of active clients to allow. The behaviour of hitting this threshold is controlled by exhaustedPolicy -->
+		<property name="maxIdle" value="${cassandra.max.idle.pool.size}" /> <!-- The number of unused clients to keep -->
+		<property name="maxWaitTimeWhenExhausted" value="${cassandra.max.wait.time.when.exhausted}" /> <!-- The maximum amount of time to wait if there are no clients available -->
+		<!-- property name="useThriftFramedTransport" value="FALSE" / --> <!-- By default this is set to FALSE.  If set to TRUE it breaks everything so LEAVE IT AS FALSE -->
+		<property name="lifo" value="${cassandra.lifo}" /> <!-- Use “Last in, first out” pool retrieval policy -->
+	</bean>
+
+	<bean id="cluster" class="me.prettyprint.cassandra.service.ThriftCluster">
+		<constructor-arg name="clusterName" value="${cassandra.cluster.name}" />
+		<constructor-arg ref="cassandraHostConfigurator" />
+	</bean>
+
+	<bean id="keyspace" class="me.prettyprint.hector.api.factory.HFactory" factory-method="createKeyspace">
+		<constructor-arg name="keyspace" value="${cassandra.keyspace.name}" />
+		<constructor-arg name="cluster" ref="cluster" />
+		<constructor-arg name="consistencyLevelPolicy" ref="consistencyLevelPolicy" />
+	</bean>
+	
+	<bean id="consistencyLevelPolicy" class="com.bskyb.cg.environments.cassandra.LogConsistencyLevelPolicy">
+		<constructor-arg name="readConsistencyLevel" value="${cassandra.read.consistency.level}" />
+		<constructor-arg name="writeConsistencyLevel" value="${cassandra.write.consistency.level}" />
+	</bean>
+
+</beans>
